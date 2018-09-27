@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,61 @@ namespace ImprimirCSV
             }
             return list;
         }
+
+        public static void saveSettings(string[] row)
+        {
+            string line = string.Join(";", row) + "" + Environment.NewLine;
+            File.AppendAllText("data.dat", line);
+        }
+
+        public static List<string[]> loadSettings()
+        {
+            List<string[]> res = new List<string[]>();
+            if (!File.Exists("data.dat"))
+            {
+                File.Create("data.dat").Close();
+            }
+            foreach (string line in File.ReadAllLines("data.dat"))
+            {
+                string[] aux = line.Split(';');
+                res.Add(aux);
+            }         
+            return res;
+        }
+
+        public static bool deleteSettings(string path)
+        {
+            bool res = false;
+            string text = "";
+            foreach (string line in File.ReadAllLines("data.dat"))
+            {
+                if (line.StartsWith(path))
+                    res = true;                
+                else
+                    text += line + Environment.NewLine;
+            }
+            File.WriteAllText("data.dat", text);
+            return res;
+        }
+
+        public static void initLog()
+        {
+            if (File.Exists("log.dat"))
+            {
+                File.Delete("log.dat");
+            }
+            File.Create("log.dat").Close();            
+        }
+
+        public static string readLog()
+        {            
+            return File.ReadAllText("log.dat");
+        }
+
+        public static void writeLog(string text)
+        {
+            File.AppendAllText("log.dat",text+Environment.NewLine);
+        }       
 
     }
 }

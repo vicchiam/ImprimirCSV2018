@@ -12,17 +12,45 @@ namespace ImprimirCSV
 {
     public partial class MainForm : Form
     {
+
+        private List<string[]> listeners;
+        private ProccessTask proccessTask;
+
         public MainForm()
         {
             InitializeComponent();
 
-            this.Icon = new System.Drawing.Icon("document.ico");
-            this.ShowInTaskbar = false;
-            this.ShowIcon = false;
-
-            notifyIcon.Icon = new System.Drawing.Icon("document.ico");
-
+            this.init();
+            this.loadSettings();            
             this.loadPrintersList();
+            this.loadLog();
+
+            listeners = new List<string[]>();
+            proccessTask = new ProccessTask();
+        }
+
+        private void init()
+        {
+            Settings.initLog();
+            this.Icon = new System.Drawing.Icon("document.ico");
+            this.MaximizeBox = false;
+            notifyIcon.Icon = new System.Drawing.Icon("document.ico");
+            listView.View = View.Details;            
+        }
+
+        private void loadLog()
+        {
+            logTextBox.Text = Settings.readLog();
+        }
+
+        private void loadSettings()
+        {
+            this.listeners = Settings.loadSettings();
+            foreach (string[] row in this.listeners)
+            {
+                ListViewItem item = new ListViewItem(row);
+                listView.Items.Add(item);
+            }
         }
 
         private void loadPrintersList()
@@ -52,6 +80,7 @@ namespace ImprimirCSV
 
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
+            proccessTask.stopTask();
             Application.Exit();
         }
 
@@ -73,17 +102,80 @@ namespace ImprimirCSV
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                MessageBox.Show("Debes seleccionar un directorio","Advertencia");
+                MessageBox.Show("Debes seleccionar un directorio", "Advertencia");
             }
             else if (string.IsNullOrWhiteSpace(printer))
             {
-                MessageBox.Show("Debes seleccionar una impresora","Advertencia");
+                MessageBox.Show("Debes seleccionar una impresora", "Advertencia");
             }
             else if (string.IsNullOrWhiteSpace(prefix))
             {
-                MessageBox.Show("Debes indicar un prefijo","Advertencia");
+                MessageBox.Show("Debes indicar un prefijo", "Advertencia");
             }
+            else
+            {
+                string[] aux = { path, printer, prefix };
+                if (this.checkRepeatDirectory(aux))
+                {
+                    MessageBox.Show("El directorio ya esta en uso", "Advertencia");
+                }
+                else
+                {
+                    this.listeners.Add(aux);
+                    ListViewItem item = new ListViewItem(aux);
+                    listView.Items.Add(item);
+                    Settings.saveSettings(aux);
+                }                
+            }
+        }
 
+        private bool checkRepeatDirectory(string[] newItem)
+        {            
+            foreach (string[] item in this.listeners)
+            {
+                if (item[0] == newItem[0]) return true;
+            }
+            return false;
+        }
+
+        private void listView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (listView.FocusedItem.Bounds.Contains(e.Location))
+                {                    
+                    contextMenuStripListView.Show(Cursor.Position);
+                }
+            }
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {            
+            ListViewItem item=listView.SelectedItems[0];
+            string path = item.SubItems[0].Text;
+            if (Settings.deleteSettings(path))
+            {
+                item.Remove();
+            }
+        }
+
+        private void startStopMenuItem_Click(object sender, EventArgs e)
+        {
+            if (notifyIcon.ContextMenuStrip.Items[0].Text == "Iniciar Escucha")
+            {                
+                proccessTask.startTask();
+                notifyIcon.ContextMenuStrip.Items[0].Text = "Detener Escucha";
+            }
+            else
+            {
+                proccessTask.stopTask();
+                notifyIcon.ContextMenuStrip.Items[0].Text = "Iniciar Escucha";
+            }
+        }
+
+        private void reloadButton_Click(object sender, EventArgs e)
+        {
+            this.loadLog();
         }
     }
 }
