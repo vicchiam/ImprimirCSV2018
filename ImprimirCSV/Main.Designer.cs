@@ -223,6 +223,7 @@
             this.logTextBox.Location = new System.Drawing.Point(24, 319);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.logTextBox.Size = new System.Drawing.Size(653, 265);
             this.logTextBox.TabIndex = 12;
             // 
@@ -255,8 +256,6 @@
             this.Controls.Add(this.printersCombo);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Name = "MainForm";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Configuración";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;

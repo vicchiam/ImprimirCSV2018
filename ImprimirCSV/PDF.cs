@@ -15,6 +15,8 @@ namespace ImprimirCSV
     {
 
         private DataTable dataTable;
+        private float tNeto;
+        private float tCajas;
 
         public PDF(string pathCSV, string pathPDF, string pathLogo)
         {
@@ -67,13 +69,15 @@ namespace ImprimirCSV
             this.setBarcode(doc, writer, sscc);
 
             string agencia = row["AGENCIA"].ToString();
-            this.setAgencia(doc, writer, "MONTFRISA (LEVANTE)");
+            string nom_agencia = row["NOMBRE_AGENCIA"].ToString();
+            this.setAgencia(doc, writer, agencia, nom_agencia);
 
             string cliente = row["SUCURSAL_CLIENTE"].ToString();
+            string nom_cliente = row["CLTE_RAZON_SOCIAL"].ToString();
             string direccion = row["SUC_DIRECCION_ENVIO"].ToString();
             string cp = row["SUC_D_POSTAL_ENVIO"].ToString();
             string poblacion = row["SUC_POBLACION_ENVIO"].ToString();
-            this.setCliente(doc, writer, cliente, direccion, cp, poblacion);
+            this.setCliente(doc, writer, cliente, nom_cliente, direccion, cp, poblacion);
 
             string pedido = row["AGENCIA"].ToString();
             string referencia = row["AGENCIA"].ToString();
@@ -119,7 +123,7 @@ namespace ImprimirCSV
             ct.Go();
         }
 
-        private void setAgencia(Document doc, PdfWriter writer, string nombre)
+        private void setAgencia(Document doc, PdfWriter writer, string codigo, string nombre)
         {
             this.setLine(doc, writer);
             Font f = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12);
@@ -128,6 +132,7 @@ namespace ImprimirCSV
             doc.Add(textLine);
 
             f = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 26);
+            textLine = new Paragraph(codigo+"-"+nombre, f);
             textLine = new Paragraph(nombre, f);
             textLine.SetLeading(25, 0);
             doc.Add(textLine);
@@ -135,10 +140,11 @@ namespace ImprimirCSV
             this.setLine(doc, writer);
         }
 
-        private void setCliente(Document doc, PdfWriter writer, string nombre, string direccion, string cp, string poblacion)
+        private void setCliente(Document doc, PdfWriter writer, string codigo, string nombre, string direccion, string cp, string poblacion)
         {
             Font f = FontFactory.GetFont(FontFactory.HELVETICA, 24);
 
+            //Paragraph textLine = new Paragraph(codigo+"-"+nombre, f);
             Paragraph textLine = new Paragraph(nombre, f);
             doc.Add(textLine);
 
@@ -193,6 +199,9 @@ namespace ImprimirCSV
             cell.BackgroundColor = BaseColor.DARK_GRAY;
             table.AddCell(cell);
 
+            this.tNeto = 0;
+            this.tCajas = 0;
+
             this.setRows(doc, writer, table);
 
             doc.Add(table);
@@ -210,6 +219,16 @@ namespace ImprimirCSV
                 string lote = "NULL";
                 string peso = row["PESO_BULTO"].ToString();
                 string cantidad = row["CANTIDAD"].ToString();
+
+                float aux = 0;
+                if (float.TryParse(peso,out aux))
+                {
+                    this.tNeto += aux;
+                }
+                if (float.TryParse(cantidad, out aux))
+                {
+                    this.tCajas += aux;
+                }
 
                 PdfPCell cell = new PdfPCell(new Phrase(articulo, f));
                 table.AddCell(cell);
@@ -242,7 +261,7 @@ namespace ImprimirCSV
             cb.Stroke();
 
             ColumnText ct = new ColumnText(cb);
-            Phrase myText = new Phrase("TOTAL P.NETO(KG):" + neto + "                       TOTAL CAJAS:" + cajas, f);
+            Phrase myText = new Phrase("TOTAL P.NETO(KG):" + this.tNeto + "                       TOTAL CAJAS:" + this.tCajas, f);
             ct.SetSimpleColumn(myText, 36, 7, 500, 25, 15, Element.ALIGN_LEFT);
             ct.Go();
         }

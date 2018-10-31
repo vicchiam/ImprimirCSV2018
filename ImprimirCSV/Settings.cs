@@ -31,7 +31,7 @@ namespace ImprimirCSV
             List<string[]> res = new List<string[]>();
             if (!File.Exists("data.dat"))
             {
-                File.Create("data.dat").Close();
+                File.Create("data.dat").Close();                
             }
             foreach (string line in File.ReadAllLines("data.dat"))
             {
@@ -47,7 +47,8 @@ namespace ImprimirCSV
             string text = "";
             foreach (string line in File.ReadAllLines("data.dat"))
             {
-                if (line.StartsWith(path))
+                string[] aux = line.Split(';');
+                if (aux[0]==path)
                     res = true;                
                 else
                     text += line + Environment.NewLine;
@@ -72,7 +73,13 @@ namespace ImprimirCSV
 
         public static void writeLog(string text)
         {
-            File.AppendAllText("log.dat",text+Environment.NewLine);
+            string[] lines = File.ReadAllLines("log.dat");
+            if (lines.Length > 1000) {                               
+                File.WriteAllLines("log.dat", lines.Skip(100).ToArray());
+            }
+            DateTime now = DateTime.Now;
+            string timestamp = now.Year + "/" + now.Month.ToString("D2") + "/" + now.Day.ToString("D2") + "  " + now.Hour.ToString("D2") + ":" + now.Minute.ToString("D2");
+            File.AppendAllText("log.dat",timestamp+" "+text+Environment.NewLine);
         }       
 
     }

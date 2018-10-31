@@ -162,14 +162,20 @@ namespace ImprimirCSV
         private void startStopMenuItem_Click(object sender, EventArgs e)
         {
             if (notifyIcon.ContextMenuStrip.Items[0].Text == "Iniciar Escucha")
-            {                
-                proccessTask.startTask();
-                notifyIcon.ContextMenuStrip.Items[0].Text = "Detener Escucha";
+            {
+                if (!proccessTask.isRunning())
+                {
+                    proccessTask.startTask();
+                    notifyIcon.ContextMenuStrip.Items[0].Text = "Detener Escucha";
+                }
             }
             else
             {
-                proccessTask.stopTask();
-                notifyIcon.ContextMenuStrip.Items[0].Text = "Iniciar Escucha";
+                if (proccessTask.isRunning())
+                {
+                    proccessTask.stopTask();
+                    notifyIcon.ContextMenuStrip.Items[0].Text = "Iniciar Escucha";
+                }                
             }
         }
 
