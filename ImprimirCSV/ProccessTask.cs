@@ -23,12 +23,12 @@ namespace ImprimirCSV
         public ProccessTask()
         {
             this.running = false;
-            this.stop = false;
-            this.thread = new Thread(new ThreadStart(Loop));
+            this.stop = false;            
         }
 
         public void startTask()
         {
+            this.thread = new Thread(new ThreadStart(Loop));
             thread.Start();            
         }
 
@@ -49,12 +49,10 @@ namespace ImprimirCSV
             while (!this.stop)
             {
                 processTask();
-                int cont = 0;
-                while (!this.stop && cont<=SECONDS)
+                if (!this.stop)
                 {
-                    Thread.Sleep(1000);
-                    cont++;
-                }   
+                    Thread.Sleep(1000 * SECONDS);
+                }
             }
             Settings.writeLog("Procesando Detenido");
             this.running = false;

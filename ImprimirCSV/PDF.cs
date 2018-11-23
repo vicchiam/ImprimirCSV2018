@@ -79,8 +79,8 @@ namespace ImprimirCSV
             string poblacion = row["SUC_POBLACION_ENVIO"].ToString();
             this.setCliente(doc, writer, cliente, nom_cliente, direccion, cp, poblacion);
 
-            string pedido = row["AGENCIA"].ToString();
-            string referencia = row["AGENCIA"].ToString();
+            string pedido = row["NUMERO_PEDIDO"].ToString();
+            string referencia = row["REFERENCIA_PEDIDO"].ToString();
             this.setPedido(doc, writer, pedido, referencia);
 
             this.setTable(doc, writer);
@@ -216,9 +216,9 @@ namespace ImprimirCSV
             {
                 string articulo = row["CODIGO_PRODUCTO"].ToString();
                 string descripcion = row["DESCRI_LARGA"].ToString();
-                string lote = "NULL";
-                string peso = row["PESO_BULTO"].ToString();
-                string cantidad = row["CANTIDAD"].ToString();
+                string lote = row["LOTE_EXPERT"].ToString();
+                string peso = row["CANTIDAD"].ToString();
+                string cantidad = row["CANTIDAD_CAJAS"].ToString();
 
                 float aux = 0;
                 if (float.TryParse(peso,out aux))
